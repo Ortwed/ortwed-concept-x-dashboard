@@ -169,6 +169,12 @@ commit til `main` i stedet for at sende ham efter Retry deployment-knappen.
 Et secret sat mens et deploy allerede kører, kommer heller ikke med.
 Vent til Cloudflare viser deployet som færdigt, og push så igen.
 
+Kommer en push ikke frem under Deployments, så tjek om Cloudflare viser
+"disconnected from your Git account". Så har GitHub-appen Cloudflare
+Workers and Pages mistet adgangen til repoet. Det rettes på GitHub under
+Settings → Applications → Configure, hvor både dette repo og
+`co-consulting-crm` skal være valgt. Flere pushes hjælper ikke.
+
 Pages Functions bygges kun hvis `functions/` ligger i roden af repoet.
 Det skal være et **Pages**-projekt, ikke et Worker. Det private projekt
 lærte det på den hårde måde.
