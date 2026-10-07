@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#005169">
+<title>Concept X · Christian</title>
+<link rel="icon" href="billeder/x-sort.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Farverne er Concept X' egne, målt fra introduktionsdecket.
+   Gul er kun til mørk bund, og det er her alt er mørk bund. */
+:root{
+  --gradient: linear-gradient(180deg, #005169 0%, #223535 36%, #1F2C2C 60%, #191919 100%);
+  --sort:   #191919;
+  --hvid:   #ffffff;
+  --gul:    #E3FF00;   /* det vigtige: overskrifter, i dag, kernen */
+  --alarm:  #ff6a3d;   /* kun forsinket eller fejl. Brandets orange, lysnet så den kan læses på mørk bund */
+  --tekst:  rgba(255,255,255,.9);
+  --daemp:  rgba(255,255,255,.65);
+  --daemp2: rgba(255,255,255,.75);
+  --flade:  rgba(255,255,255,.05);
+  --kant:   rgba(255,255,255,.12);
+  --streg:  rgba(255,255,255,.08);
+  --rubrik: "Outfit", sans-serif;
+  --broed:  "Poppins", sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--sort)}
+body{margin:0;min-height:100vh;background:var(--gradient) no-repeat,var(--sort);
+  font-family:var(--broed);color:var(--hvid);font-size:14px;line-height:1.5}
+a{color:var(--gul)}
+a:hover{color:var(--hvid)}
+button{font-family:var(--broed)}
+:focus-visible{outline:2px solid var(--gul);outline-offset:2px}
+[hidden]{display:none !important}
+
+/* ---------- login ---------- */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+#login .boks{width:100%;max-width:360px;display:flex;flex-direction:column;gap:6px}
+#login img{height:26px;width:auto;align-self:flex-start;margin-bottom:28px}
+#login label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--daemp2);margin-top:12px}
+input,select,textarea{font:inherit;color:var(--hvid);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.25);
+  border-radius:10px;padding:10px 12px;min-height:44px;width:100%}
+select option{background:var(--sort)}
+input:focus,select:focus,textarea:focus{border-color:var(--gul);outline:none}
+.fejl{color:var(--alarm);font-size:13px;margin-top:8px}
+
+/* ---------- knapper ---------- */
+.knap{min-height:44px;padding:0 18px;border-radius:22px;border:1px solid var(--gul);background:var(--gul);
+  color:var(--sort);font-weight:600;font-size:13px;cursor:pointer}
+.knap:disabled{opacity:.6;cursor:default}
+.knap.stille{background:transparent;border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.85)}
+.knap.stille:hover{color:var(--hvid);border-color:rgba(255,255,255,.5)}
+.knap.fare{background:transparent;border-color:var(--alarm);color:var(--alarm)}
+
+/* ---------- topbar ---------- */
+.side{max-width:1360px;margin:0 auto;padding:0 28px 48px;display:flex;flex-direction:column;gap:28px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 32px;
+  padding:24px 0;border-bottom:1px solid var(--kant)}
+.ur-boks{display:flex;align-items:center;gap:24px}
+.ur-boks img{height:22px;width:auto;display:block}
+.ur{font-family:var(--rubrik);font-weight:700;font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.ur-dato{font-size:12px;color:var(--gul);margin-top:2px}
+nav{display:flex;flex-wrap:wrap;gap:4px}
+nav button{min-height:44px;padding:0 14px;background:transparent;border:none;border-bottom:2px solid transparent;
+  color:var(--daemp2);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+nav button:hover{color:var(--hvid)}
+nav button[aria-selected="true"]{color:var(--hvid);border-bottom-color:var(--gul)}
+.mig{display:flex;align-items:center;gap:12px}
+.initialer{width:40px;height:40px;border-radius:50%;background:var(--gul);color:var(--sort);display:flex;
+  align-items:center;justify-content:center;font-family:var(--rubrik);font-weight:800;font-size:14px}
+
+/* ---------- kort ---------- */
+.kort{background:var(--flade);border:1px solid var(--kant);border-radius:14px;padding:24px;
+  display:flex;flex-direction:column;gap:14px;min-width:0}
+.kort-hoved{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+h2{margin:0;font-family:var(--rubrik);font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gul);text-decoration:underline;text-underline-offset:6px}
+.kort-fod{font-size:12px;color:var(--daemp);margin-top:auto}
+.kort-fod.fejl{color:var(--alarm);margin-top:auto}
+.tom{font-size:13px;color:var(--daemp);margin:0}
+.badge{min-width:30px;height:30px;padding:0 8px;border-radius:15px;border:1px solid var(--gul);color:var(--gul);
+  display:flex;align-items:center;justify-content:center;font-family:var(--rubrik);font-weight:700;font-size:14px}
+.taeller{font-size:12px;color:var(--daemp2)}
+
+/* ---------- forsidens tre kolonner ---------- */
+.tre{display:flex;flex-wrap:wrap;gap:24px;align-items:stretch}
+.kol{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:24px}
+.kol.venstre{justify-content:center}
+.midte{flex:2 1 440px;min-width:0;display:flex;flex-direction:column;align-items:center;gap:24px;padding:12px 0}
+.to{display:flex;flex-wrap:wrap;gap:24px}
+.to > .kort{flex:1 1 420px}
+
+/* nøgletal */
+.nt{display:flex;flex-direction:column;gap:8px}
+.nt-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.nt-navn{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--daemp2)}
+.nt-tal{font-family:var(--rubrik);font-weight:700;font-size:30px;line-height:1}
+.nt-bar{height:3px;border-radius:2px;background:rgba(255,255,255,.1)}
+.nt-bar i{display:block;height:3px;border-radius:2px;background:var(--gul);transition:width .4s}
+.nt.alarm .nt-tal{color:var(--alarm)}
+.nt.alarm .nt-bar i{background:var(--alarm)}
+.nt-under{font-size:12px;color:var(--daemp)}
+
+/* lister: fødselsdage, handling */
+.linje{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--streg)}
+.linje:last-child{border-bottom:none}
+.linje.klik{cursor:pointer}
+.linje.klik:hover .linje-titel{color:var(--gul)}
+.prik{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);margin-top:7px;flex:none}
+.linje-midt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.linje-titel{font-size:14px;font-weight:600;color:var(--hvid);overflow-wrap:anywhere}
+.linje-under{font-size:12px;color:var(--daemp)}
+.linje-hoejre{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--daemp2);white-space:nowrap}
+.linje.gul .prik{background:var(--gul)}
+.linje.gul .linje-hoejre{color:var(--gul)}
+.linje.sent .prik{background:var(--alarm)}
+.linje.sent .linje-hoejre{color:var(--alarm)}
+.handling-kort{min-height:560px}
+.handling-liste{display:flex;flex-direction:column;overflow-y:auto;max-height:460px}
+
+/* hilsen og ring */
+.hilsen{text-align:center;display:flex;flex-direction:column;gap:8px}
+.hilsen h1{margin:0;font-family:var(--rubrik);font-weight:800;font-size:40px;line-height:1.05;text-transform:uppercase}
+.hilsen p{margin:0;font-size:15px;color:var(--gul)}
+.ring{position:relative;width:440px;max-width:100%;aspect-ratio:1/1}
+.ring > div{position:absolute;border-radius:50%}
+.r1{inset:0;border:1px dashed rgba(255,255,255,.25)}
+.r2{inset:12px;border:1px solid var(--kant)}
+.r3{inset:-18px;border:3px dotted transparent;border-top-color:var(--gul);opacity:.8}
+.r4{inset:15%;border:3px solid transparent;border-top-color:rgba(227,255,0,.6);border-left-color:rgba(255,255,255,.15)}
+.r5{inset:15%;border:3px solid transparent;border-bottom-color:rgba(255,255,255,.35)}
+.r6{inset:20%;border:1px solid rgba(255,255,255,.1)}
+.ring.alarm .r3{border-top-color:var(--alarm)}
+.kerne{position:absolute;inset:29%;border-radius:50%;background:var(--gul);border:none;cursor:pointer;color:var(--sort);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:0}
+.kerne img{width:30%;height:auto;display:block}
+.kerne span{font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;padding:0 12%;text-align:center}
+.ring-maerke{position:absolute;left:50%;bottom:0;transform:translate(-50%,40%);font-size:10px;font-weight:600;
+  letter-spacing:.2em;color:var(--daemp2);background:#1F2C2C;padding:3px 8px;border-radius:10px;white-space:nowrap}
+@keyframes drej{to{transform:rotate(360deg)}}
+@keyframes drejTilbage{to{transform:rotate(-360deg)}}
+@keyframes puls{0%,100%{box-shadow:0 0 40px rgba(227,255,0,.35),0 0 120px rgba(227,255,0,.12)}
+  50%{box-shadow:0 0 60px rgba(227,255,0,.55),0 0 160px rgba(227,255,0,.2)}}
+.langsom{animation:drej 30s linear infinite}
+.modsat{animation:drejTilbage 20s linear infinite}
+.puls{animation:puls 4s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){.langsom,.modsat,.puls{animation:none}}
+
+/* ugen */
+.uge-rulle{overflow-x:auto}
+.uge{display:grid;grid-template-columns:repeat(5,minmax(140px,1fr));gap:14px}
+.dag{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:12px;background:rgba(255,255,255,.04);min-height:140px}
+.dag-top{display:flex;align-items:baseline;gap:8px}
+.dag-tal{font-family:var(--rubrik);font-weight:800;font-size:26px;line-height:1}
+.dag-navn{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--daemp2)}
+.aftale{padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.08);display:flex;flex-direction:column;gap:2px}
+.aftale-tid{font-size:11px;font-weight:700;color:var(--gul)}
+.aftale-titel{font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+.dag .fri{font-size:12px;color:var(--daemp)}
+.dag.idag{background:var(--gul);color:var(--sort)}
+.dag.idag .dag-navn,.dag.idag .aftale-tid,.dag.idag .fri{color:var(--sort)}
+.dag.idag .aftale{background:rgba(25,25,25,.1)}
+.lenke{min-height:44px;display:inline-flex;align-items:center;font-size:13px;font-weight:600;text-decoration:none}
+
+/* post og nyheder */
+.post{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-bottom:1px solid var(--streg);color:var(--hvid);text-decoration:none}
+.post:last-child{border-bottom:none}
+.post:hover .post-emne{color:var(--gul)}
+.post-top{display:flex;justify-content:space-between;gap:12px;font-size:12px}
+.post-top b{font-weight:700}
+.post-top span{color:var(--daemp);white-space:nowrap}
+.post-emne{font-size:14px;overflow-wrap:anywhere}
+.post-uddrag{font-size:12px;color:var(--daemp);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.faneknapper{display:flex;flex-wrap:wrap;gap:4px}
+.faneknapper button{min-height:36px;padding:0 12px;border-radius:18px;background:transparent;border:1px solid rgba(255,255,255,.25);
+  color:rgba(255,255,255,.85);font-weight:600;font-size:11px;cursor:pointer}
+.faneknapper button[aria-selected="true"]{background:var(--gul);border-color:var(--gul);color:var(--sort)}
+.maerke{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:10px;
+  background:var(--gul);color:var(--sort)}
+.maerke.graa{background:rgba(255,255,255,.15);color:var(--hvid)}
+
+/* fødselsdagsfanen */
+.formular{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.formular label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--daemp2)}
+.formular input,.formular select{font-size:14px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--hvid)}
+.knaprad{display:flex;flex-wrap:wrap;gap:8px}
+.maaned{margin:8px 0 0;font-family:var(--rubrik);font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--daemp2)}
+
+/* telefonen: hilsen og ring først */
+@media (max-width: 900px){
+  .side{padding:0 16px 32px;gap:20px}
+  .midte{order:-1}
+  .hilsen h1{font-size:28px}
+  .ring{width:300px}
+  .handling-kort{min-height:0}
+  .to > .kort{flex-basis:100%}
+  /* Fem dage side om side kræver vandret rul. Lodret er nemmere med tommelen. */
+  .uge{grid-template-columns:1fr}
+  .dag{min-height:0}
+  /* Under 16px zoomer iPhone ind når man trykker i et felt. */
+  input,select,textarea,.formular input,.formular select{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<section id="login">
+  <div class="boks">
+    <img src="billeder/concept-x.png" alt="Concept X">
+    <div id="login-fejl"></div>
+    <label for="mail">E-mail</label>
+    <input id="mail" type="email" autocomplete="username">
+    <label for="kode">Adgangskode</label>
+    <input id="kode" type="password" autocomplete="current-password">
+    <button class="knap" id="log-ind" style="width:100%;margin-top:20px">Log ind</button>
+  </div>
+</section>
+
+<!-- ================= APP ================= -->
+<div id="app" class="side" hidden>
+  <header>
+    <div class="ur-boks">
+      <img src="billeder/concept-x.png" alt="Concept X">
+      <div>
+        <div class="ur" id="ur">00:00:00</div>
+        <div class="ur-dato" id="ur-dato"></div>
+      </div>
+    </div>
+    <nav aria-label="Hovedmenu" role="tablist">
+      <button role="tab" data-fane="forside" aria-selected="true">Forside</button>
+      <button role="tab" data-fane="foedselsdage" aria-selected="false">Fødselsdage</button>
+    </nav>
+    <div class="mig">
+      <div class="initialer" aria-label="Christian Ortwed">CO</div>
+      <button class="knap stille" id="lyd">Lyd til</button>
+      <button class="knap stille" id="log-ud">Log ud</button>
+    </div>
+  </header>
+  <main id="indhold"></main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* ============================================================
+   1. OPSÆTNING
+   Arbejdsprojektets egen Supabase. Den deler intet med CO
+   Consulting-databasen, og sådan skal det blive ved med at være.
+   Publishable key må gerne stå her. Den giver ingen adgang i
+   sig selv, det er login og RLS der beskytter data.
+   ============================================================ */
+const SUPABASE_URL  = "https://pjmcoegcccjkdzrqjbrr.supabase.co";
+const SUPABASE_ANON = "sb_publishable_TiajL1CMzzsD_KnacoqmtQ_nI1DA9qe";
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* Alle kald til /api/ sender login med. Serveren afviser kald uden,
+   så fremmede ikke kan læse mails og opgaver ved at kende adressen. */
+async function apiHent(sti, valg = {}){
+  const { data } = await db.auth.getSession();
+  const token = data?.session?.access_token || "";
+  return fetch(sti, { ...valg, headers: { ...(valg.headers || {}), authorization: `Bearer ${token}` } });
+}
+
+/* ---------- hjælpere ---------- */
+const $ = s => document.querySelector(s);
+const sikker = s => String(s ?? "").replace(/[&<>"']/g,
+  c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const to = n => String(n).padStart(2, "0");
+const kort = d => d ? new Date(d).toLocaleDateString("da-DK", {day:"numeric", month:"short"}) : "";
+const klokken = d => new Date(d).toLocaleTimeString("da-DK", {hour:"2-digit", minute:"2-digit"});
+// Lokal dato som "2026-10-07". toISOString giver UTC, og så lander en
+// aftale kl. 00.30 på dagen før.
+const dagKey = d => {
+  if (typeof d === "string" && d.length === 10) return d;
+  const x = new Date(d);
+  return `${x.getFullYear()}-${to(x.getMonth() + 1)}-${to(x.getDate())}`;
+};
+const idagKey = () => dagKey(new Date());
+function ugeStart(){
+  const nu = new Date();
+  return new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() - ((nu.getDay() + 6) % 7));
+}
+
+const RELATIONER = [["kollega","Kollega"], ["kunde","Kunde"], ["bureau","Bureau"], ["andet","Andet"]];
+const relNavn = k => (RELATIONER.find(r => r[0] === k) || [k, k])[1];
+
+/* ============================================================
+   2. LOGIN
+   ============================================================ */
+$("#log-ind").onclick = async () => {
+  const knap = $("#log-ind");
+  knap.disabled = true;
+  knap.textContent = "Logger ind…";
+  $("#login-fejl").innerHTML = "";
+  hilsVedLogin = true;   // klikket her er det der giver browseren lov til at tale
+  const { error } = await db.auth.signInWithPassword({
+    email: $("#mail").value.trim(),
+    password: $("#kode").value
+  });
+  if (error){
+    $("#login-fejl").innerHTML = `<div class="fejl">${sikker(error.message)}</div>`;
+    knap.disabled = false;
+    knap.textContent = "Log ind";
+    hilsVedLogin = false;
+  }
+};
+$("#kode").onkeydown = e => { if (e.key === "Enter") $("#log-ind").click(); };
+$("#log-ud").onclick = () => db.auth.signOut();
+
+// Slås lyden til, får man velkomsten med det samme. Klikket er det
+// der giver browseren lov til at tale.
+$("#lyd").onclick = () => {
+  const varFra = lydErSlaaet();
+  lydSlaaet(!varFra);
+  visLydKnap();
+  if (varFra) hils(hilsenTal(), true);
+};
+visLydKnap();
+
+db.auth.onAuthStateChange((_, session) => {
+  if (session) start(); else {
+    $("#app").hidden = true;
+    $("#login").hidden = false;
+    $("#log-ind").disabled = false;
+    $("#log-ind").textContent = "Log ind";
+  }
+});
+
+let startet = false;
+function start(){
+  // Supabase melder også ind når tokenet fornyes. Siden skal ikke
+  // tegnes forfra hver time af den grund.
+  if (startet) return;
+  startet = true;
+  $("#login").hidden = true;
+  $("#app").hidden = false;
+  startUr();
+  visFane("forside");
+}
+
+/* ============================================================
+   3. FANER
+   ============================================================ */
+document.querySelectorAll("nav button").forEach(b => {
+  b.onclick = () => visFane(b.dataset.fane);
+});
+
+function visFane(navn){
+  document.querySelectorAll("nav button").forEach(b =>
+    b.setAttribute("aria-selected", b.dataset.fane === navn));
+  return ({ forside: visForside, foedselsdage: visFoedselsdage })[navn]();
+}
+
+/* ============================================================
+   4. FORSIDEN
+   Alt kommer fra netværket, så siden tegnes tom først og fyldes
+   kort for kort. Den venter aldrig på det langsomste kald.
+   ============================================================ */
+let todoist = [];          // forfaldne og dagens opgaver
+let todoistFejl = "";
+let aftaler = [];          // Google-kalenderen, mandag til søndag
+let post = [];
+let postFejl = "";
+let hilsVedLogin = false;
+
+async function visForside(){
+  const time = new Date().getHours();
+  const hilsen = time < 10 ? "God morgen" : time < 12 ? "God formiddag"
+               : time < 18 ? "God eftermiddag" : "God aften";
+
+  $("#indhold").innerHTML = `<div class="side" style="padding:0">
+  <div class="tre">
+    <div class="kol venstre">
+      <section class="kort" id="noegletal" style="gap:20px"></section>
+      <section class="kort">
+        <div class="kort-hoved"><h2>Fødselsdage</h2>
+          <button class="knap stille" onclick="visFane('foedselsdage')">Alle</button></div>
+        <div id="fdage"><p class="tom">Henter…</p></div>
+      </section>
+    </div>
+
+    <div class="midte">
+      <div class="hilsen">
+        <h1>${hilsen}, Christian</h1>
+        <p id="moeder-idag">&nbsp;</p>
+      </div>
+      <div class="ring" id="ring">
+        <div class="r1"></div><div class="r2"></div>
+        <div class="r3 langsom"></div><div class="r4 modsat"></div><div class="r5 langsom"></div>
+        <div class="r6"></div>
+        <button class="kerne puls" onclick="window.open('https://app.todoist.com/app/today','_blank','noopener')" title="Åbn Todoist">
+          <img src="billeder/x-sort.png" alt="Concept X">
+          <span id="kerne-status">Henter</span>
+        </button>
+        <div class="ring-maerke">CONCEPT X</div>
+      </div>
+    </div>
+
+    <div class="kol">
+      <section class="kort handling-kort" id="handling"></section>
+    </div>
+  </div>
+
+  <section class="kort" style="gap:18px">
+    <div class="kort-hoved"><h2>Denne uge · uge ${ugeNr(new Date())}</h2>
+      <a class="lenke" href="https://calendar.google.com/" target="_blank" rel="noopener">Se kalender →</a></div>
+    <div class="uge-rulle"><div class="uge" id="uge"></div></div>
+  </section>
+
+  <div class="to">
+    <section class="kort">
+      <div class="kort-hoved"><h2>Ulæst post</h2><span class="taeller" id="post-antal"></span></div>
+      <div id="postliste"><p class="tom">Henter…</p></div>
+    </section>
+    <section class="kort" id="nyheder">
+      <div class="kort-hoved"><h2>Nyheder</h2>
+        <div class="faneknapper" role="tablist" aria-label="Nyhedsfeeds">
+          ${Object.entries(SPOR).map(([k, n], i) =>
+            `<button role="tab" data-spor="${k}" aria-selected="${i === 0}" onclick="visNyheder('${k}')">${n}</button>`).join("")}
+        </div>
+      </div>
+      <div id="nyhedsliste"><p class="tom">Henter…</p></div>
+      <div class="kort-fod" id="nyhed-tid"></div>
+    </section>
+  </div>
+  </div>`;
+
+  tegnNoegletal();
+  tegnHandling();
+  tegnUge();
+
+  hentFoedselsdage();
+  hentNyheder();
+  // Hilsenen venter på begge, så den siger de rigtige tal.
+  const begge = Promise.allSettled([hentTodoist(), hentIndbakke()]);
+  if (hilsVedLogin){
+    hilsVedLogin = false;
+    begge.then(() => hils(hilsenTal()));
+  }
+}
+
+// ISO-ugenummer, som det står i en dansk kalender.
+function ugeNr(d){
+  const x = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  x.setUTCDate(x.getUTCDate() + 4 - (x.getUTCDay() || 7));
+  const nytaar = new Date(Date.UTC(x.getUTCFullYear(), 0, 1));
+  return Math.ceil(((x - nytaar) / 864e5 + 1) / 7);
+}
+
+// Heldagsaftaler som "ferie" er ikke møder, så de tæller ikke med.
+const moederPaa = key => aftaler.filter(a => !a.heldags && dagKey(a.start) === key);
+function ugensMoeder(){
+  const fra = ugeStart();
+  const keys = [0,1,2,3,4].map(i => dagKey(new Date(fra.getFullYear(), fra.getMonth(), fra.getDate() + i)));
+  return aftaler.filter(a => !a.heldags && keys.includes(dagKey(a.start)));
+}
+
+// Bjælkerne er stemning, ikke statistik. "fuld" er det tal der fylder
+// hele bjælken, valgt så en normal uge ligger midt i.
+const bjaelke = (n, fuld) => Math.max(2, Math.min(100, Math.round(n / fuld * 100)));
+
+function tegnNoegletal(){
+  const boks = $("#noegletal");
+  if (!boks) return;
+  const uge = ugensMoeder();
+  const naeste = uge.find(a => new Date(a.start) > new Date());
+  const forfaldne = todoist.filter(o => o.forfalden).length;
+  boks.innerHTML = `<h2>Nøgletal</h2>
+    ${noegletal("Møder i ugen", uge.length,
+        postFejl ? "kalenderen svarer ikke"
+        : naeste ? `næste ${kort(naeste.start)} kl. ${klokken(naeste.start)}`
+        : uge.length ? "resten er overstået" : "tom kalender", bjaelke(uge.length, 15))}
+    ${noegletal("Forfaldne opgaver", forfaldne,
+        todoistFejl ? "Todoist svarer ikke"
+        : forfaldne ? "burde være klaret" : "intet forfaldent", bjaelke(forfaldne, 10),
+        forfaldne ? "alarm" : "")}
+    ${noegletal("Opgaver i dag", todoist.length - forfaldne,
+        todoist.length - forfaldne ? "fra Todoist" : "ingen i dag", bjaelke(todoist.length - forfaldne, 10))}`;
+}
+
+function noegletal(navn, tal, under, pct, slags = ""){
+  return `<div class="nt ${slags}">
+    <div class="nt-top"><span class="nt-navn">${navn}</span><span class="nt-tal">${tal}</span></div>
+    <div class="nt-bar"><i style="width:${pct}%"></i></div>
+    <div class="nt-under">${sikker(under)}</div>
+  </div>`;
+}
+
+/* ---------- Kræver handling (Todoist) ---------- */
+async function hentTodoist(){
+  try {
+    const r = await apiHent("/api/todoist");
+    const data = await r.json();
+    todoist = data.opgaver || [];
+    // Vises i kortets fod, så en død forbindelse ikke bare er tavs.
+    todoistFejl = data.fejl || (r.ok ? "" : `svarede ${r.status}`);
+  } catch {
+    todoist = [];
+    todoistFejl = "ingen forbindelse";
+  }
+  tegnHandling();
+  tegnNoegletal();
+}
+
+function tegnHandling(){
+  const boks = $("#handling");
+  if (!boks) return;
+  boks.innerHTML = `<div class="kort-hoved"><h2>Kræver handling</h2>
+      <span class="badge">${todoist.length}</span></div>
+    <div class="handling-liste">
+    ${todoist.length ? todoist.map(o => `
+      <a class="linje klik ${o.forfalden ? "sent" : "gul"}" href="${sikker(o.link)}" target="_blank" rel="noopener" style="text-decoration:none">
+        <span class="prik"></span>
+        <span class="linje-midt">
+          <span class="linje-titel">${sikker(o.titel)}</span>
+          <span class="linje-under">Todoist${o.prioritet < 4 ? " · P" + o.prioritet : ""}</span>
+        </span>
+        <span class="linje-hoejre">${o.forfalden ? kort(o.dato) : "I dag"}</span>
+      </a>`).join("")
+      : `<p class="tom">${todoistFejl ? "" : "Intet forfaldent. Sjældent syn."}</p>`}
+    </div>
+    ${todoistFejl ? `<div class="kort-fod fejl">Todoist: ${sikker(todoistFejl)}</div>` : ""}
+    <a class="knap stille" style="margin-top:auto;display:flex;align-items:center;justify-content:center;text-decoration:none"
+       href="https://app.todoist.com/app/today" target="_blank" rel="noopener">Se alle opgaver</a>`;
+
+  // Kernen følger med. Ringen bliver alarmfarvet når noget er forsinket.
+  const status = $("#kerne-status");
+  if (status) status.textContent = todoist.length ? `${todoist.length} kræver handling` : "Alt er ajour";
+  $("#ring")?.classList.toggle("alarm", todoist.some(o => o.forfalden));
+}
+
+/* ---------- Ugen (Google-kalenderen) ---------- */
+function tegnUge(){
+  const boks = $("#uge");
+  if (!boks) return;
+  const fra = ugeStart();
+  const idag = idagKey();
+  let h = "";
+  for (let i = 0; i < 5; i++){
+    const d = new Date(fra.getFullYear(), fra.getMonth(), fra.getDate() + i);
+    const key = dagKey(d);
+    const dagens = aftaler.filter(a => dagKey(a.start) === key)
+      .sort((a, b) => (b.heldags - a.heldags) || String(a.start).localeCompare(String(b.start)));
+    h += `<div class="dag${key === idag ? " idag" : ""}">
+      <div class="dag-top">
+        <span class="dag-tal">${d.getDate()}</span>
+        <span class="dag-navn">${["Man","Tirs","Ons","Tors","Fre"][i]}</span>
+      </div>
+      ${dagens.map(a => `<div class="aftale" title="${sikker(a.titel + (a.sted ? " · " + a.sted : ""))}">
+        <span class="aftale-tid">${a.heldags ? "Hele dagen" : klokken(a.start)}</span>
+        <span class="aftale-titel">${sikker(a.titel)}</span>
+      </div>`).join("")}
+      ${dagens.length ? "" : `<div class="fri">fri</div>`}
+    </div>`;
+  }
+  boks.innerHTML = h;
+
+  const idagN = moederPaa(idag).length;
+  if ($("#moeder-idag")) $("#moeder-idag").textContent = postFejl ? "kalenderen svarer ikke"
+    : idagN ? `${idagN} ${idagN === 1 ? "møde" : "møder"} i dag` : "ingen møder i dag";
+}
+
+/* ---------- Ulæst post og kalender (Apps Script) ---------- */
+async function hentIndbakke(){
+  try {
+    const r = await apiHent("/api/indbakke");
+    const data = await r.json();
+    post = data.poster || [];
+    aftaler = data.aftaler || [];
+    postFejl = data.fejl || (r.ok ? "" : `svarede ${r.status}`);
+  } catch {
+    post = []; aftaler = [];
+    postFejl = "ingen forbindelse";
+  }
+  tegnPost();
+  tegnUge();
+  tegnNoegletal();
+}
+
+function tegnPost(){
+  const boks = $("#postliste");
+  if (!boks) return;
+  if ($("#post-antal")) $("#post-antal").textContent = postFejl ? "" : `${post.length} ulæste`;
+  if (postFejl){
+    // Fejlen siger hvilket navn i Cloudflare der mangler, ikke bare at noget gik galt.
+    boks.innerHTML = `<p class="fejl" style="margin:0">Kunne ikke hente post: ${sikker(postFejl)}</p>`;
+    return;
+  }
+  if (!post.length){
+    boks.innerHTML = `<p class="tom">Indbakken er tom. Nyd det.</p>`;
+    return;
+  }
+  boks.innerHTML = post.slice(0, 6).map(m => `
+    <a class="post" href="${sikker(m.link)}" target="_blank" rel="noopener">
+      <div class="post-top"><b>${sikker(m.navn || m.email)}</b><span>${kort(m.dato)}${m.antal > 1 ? ` · ${m.antal} beskeder` : ""}</span></div>
+      <div class="post-emne">${sikker(m.emne || "(intet emne)")}</div>
+      <div class="post-uddrag">${sikker(m.uddrag || "")}</div>
+    </a>`).join("");
+}
+
+/* ---------- Fødselsdage, 30 dage frem ---------- */
+async function hentFoedselsdage(){
+  const { data, error } = await db.from("v_foedselsdage").select("*")
+    .lte("dage_til", 30).order("dage_til").limit(6);
+  const boks = $("#fdage");
+  if (!boks) return;
+  fdageIdag = (data || []).filter(f => f.dage_til === 0).map(f => f.navn.split(" ")[0]);
+  if (error){
+    boks.innerHTML = `<p class="fejl" style="margin:0">Kunne ikke hente fødselsdage: ${sikker(error.message)}</p>`;
+    return;
+  }
+  boks.innerHTML = data.length ? data.map(f => fdagLinje(f, true)).join("")
+    : `<p class="tom">Ingen fødselsdage de næste 30 dage.</p>`;
+}
+
+function fdagLinje(f, medDato){
+  const naar = f.dage_til === 0 ? "I dag" : f.dage_til === 1 ? "I morgen" : kort(f.naeste_dato);
+  return `<div class="linje klik ${f.dage_til <= 1 ? "gul" : ""}" onclick="retFoedselsdag(${Number(f.id)})">
+    <span class="prik"></span>
+    <span class="linje-midt">
+      <span class="linje-titel">${sikker(f.navn)}${f.fylder ? `, fylder ${f.fylder}` : ""}</span>
+      <span class="linje-under">${[relNavn(f.relation), f.firma].filter(Boolean).map(sikker).join(" · ")}</span>
+    </span>
+    <span class="linje-hoejre">${medDato ? naar : kort(f.naeste_dato)}</span>
+  </div>`;
+}
+
+/* ============================================================
+   5. FANEN FØDSELSDAGE
+   Lægges ind i hånden. Der er ingen kontakttabel at hente fra,
+   og det er med vilje: den eneste arbejdsdata der gemmes her.
+   ============================================================ */
+let fdageCache = [];
+let retterId = null;
+
+async function visFoedselsdage(){
+  $("#indhold").innerHTML = `<p class="tom">Henter…</p>`;
+  const { data, error } = await db.from("v_foedselsdage").select("*").order("dage_til").order("navn");
+  if (error){
+    $("#indhold").innerHTML = `<p class="fejl">Kunne ikke hente fødselsdage: ${sikker(error.message)}</p>`;
+    return;
+  }
+  fdageCache = data || [];
+  retterId = null;
+
+  // Grupperet efter måneden for næste fødselsdag, så listen starter i dag.
+  let maaned = "";
+  const liste = fdageCache.map(f => {
+    const m = new Date(f.naeste_dato).toLocaleDateString("da-DK", {month:"long", year:"numeric"});
+    const hoved = m !== maaned ? `<h3 class="maaned">${m}</h3>` : "";
+    maaned = m;
+    return hoved + fdagLinje(f, false);
+  }).join("");
+
+  $("#indhold").innerHTML = `<div style="display:flex;flex-direction:column;gap:24px">
+    <section class="kort" id="fd-formular">
+      <div class="kort-hoved"><h2 id="fd-overskrift">Ny fødselsdag</h2></div>
+      <div class="formular">
+        <label>Navn<input id="fd-navn" autocomplete="off"></label>
+        <label>Fødselsdag<input id="fd-dato" type="date"></label>
+        <label>Relation<select id="fd-rel">${RELATIONER.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}</select></label>
+        <label>Firma<input id="fd-firma" autocomplete="off"></label>
+        <label style="grid-column:1/-1">Note<input id="fd-note" autocomplete="off"></label>
+      </div>
+      <p class="tom" style="font-size:12px">Kender du ikke året, så skriv 1900.</p>
+      <div id="fd-fejl"></div>
+      <div class="knaprad">
+        <button class="knap" onclick="gemFoedselsdag()">Gem</button>
+        <button class="knap stille" id="fd-annuller" hidden onclick="visFoedselsdage()">Annullér</button>
+        <button class="knap fare" id="fd-slet" hidden onclick="sletFoedselsdag()">Slet</button>
+      </div>
+    </section>
+    <section class="kort">
+      <div class="kort-hoved"><h2>Alle fødselsdage</h2><span class="taeller">${fdageCache.length}</span></div>
+      ${liste || `<p class="tom">Ingen endnu. Læg den første ind ovenfor.</p>`}
+    </section>
+  </div>`;
+}
+
+async function retFoedselsdag(id){
+  // Fra forsiden skifter vi først fane, så formularen findes.
+  if (!$("#fd-formular")){
+    document.querySelectorAll("nav button").forEach(b =>
+      b.setAttribute("aria-selected", b.dataset.fane === "foedselsdage"));
+    await visFoedselsdage();
+  }
+  const f = fdageCache.find(x => x.id === id);
+  if (!f) return;
+  retterId = id;
+  $("#fd-overskrift").textContent = "Ret fødselsdag";
+  $("#fd-navn").value = f.navn;
+  $("#fd-dato").value = f.foedselsdag;
+  $("#fd-rel").value = f.relation;
+  $("#fd-firma").value = f.firma || "";
+  $("#fd-note").value = f.note || "";
+  $("#fd-annuller").hidden = false;
+  $("#fd-slet").hidden = false;
+  $("#fd-formular").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function gemFoedselsdag(){
+  const raekke = {
+    navn: $("#fd-navn").value.trim(),
+    foedselsdag: $("#fd-dato").value,
+    relation: $("#fd-rel").value,
+    firma: $("#fd-firma").value.trim() || null,
+    note: $("#fd-note").value.trim() || null
+  };
+  if (!raekke.navn || !raekke.foedselsdag){
+    $("#fd-fejl").innerHTML = `<p class="fejl" style="margin:0">Navn og dato skal udfyldes.</p>`;
+    return;
+  }
+  const { error } = retterId
+    ? await db.from("foedselsdage").update(raekke).eq("id", retterId)
+    : await db.from("foedselsdage").insert(raekke);
+  if (error){
+    $("#fd-fejl").innerHTML = `<p class="fejl" style="margin:0">Kunne ikke gemme: ${sikker(error.message)}</p>`;
+    return;
+  }
+  visFoedselsdage();
+}
+
+async function sletFoedselsdag(){
+  if (!retterId || !confirm(`Slet ${$("#fd-navn").value}?`)) return;
+  const { error } = await db.from("foedselsdage").delete().eq("id", retterId);
+  if (error){
+    $("#fd-fejl").innerHTML = `<p class="fejl" style="margin:0">Kunne ikke slette: ${sikker(error.message)}</p>`;
+    return;
+  }
+  visFoedselsdage();
+}
+
+/* ============================================================
+   6. URET
+   Startes én gang ved login og kører siden.
+   ============================================================ */
+let urTimer = null;
+function startUr(){
+  const tik = () => {
+    const nu = new Date();
+    $("#ur").textContent = `${to(nu.getHours())}:${to(nu.getMinutes())}:${to(nu.getSeconds())}`;
+    // Bygget i hånden, fordi browserens danske format siger "onsdag den 7. oktober".
+    const dage = ["søndag","mandag","tirsdag","onsdag","torsdag","fredag","lørdag"];
+    const md = ["januar","februar","marts","april","maj","juni","juli","august","september","oktober","november","december"];
+    $("#ur-dato").textContent = `${dage[nu.getDay()]} ${nu.getDate()}. ${md[nu.getMonth()]} ${nu.getFullYear()}`;
+  };
+  tik();
+  if (!urTimer) urTimer = setInterval(tik, 1000);
+}
+
+/* ============================================================
+   7. HILSEN VED LOGIN
+   Browserens egen stemme, så der hverken er nøgle eller server.
+   Browsere må kun tale efter et klik, derfor kun ved selve login
+   og ikke når en gemt session åbner siden. Én gang om dagen, så
+   den ikke bliver til støj. "Lyd til" siger den med det samme.
+   localStorage er per browser og kan være låst, deraf try/catch.
+   ============================================================ */
+let fdageIdag = [];
+
+const hilsenTal = () => ({
+  moeder: moederPaa(idagKey()).length,
+  handling: todoist.length,
+  foedselar: fdageIdag
+});
+
+function lydErSlaaet(){
+  try { return localStorage.getItem("lyd") === "fra"; } catch { return false; }
+}
+function lydSlaaet(fra){
+  try { localStorage.setItem("lyd", fra ? "fra" : "til"); } catch {}
+  if (fra && window.speechSynthesis) speechSynthesis.cancel();
+}
+function visLydKnap(){
+  $("#lyd").textContent = lydErSlaaet() ? "Lyd fra" : "Lyd til";
+}
+
+function hilsenTekst({ moeder, handling, foedselar }){
+  const tal = n => ["no","one","two","three","four","five","six","seven","eight","nine","ten"][n] ?? String(n);
+  const flertal = (n, ord) => `${tal(n)} ${ord}${n === 1 ? "" : "s"}`;
+  const t = new Date().getHours();
+  const dele = [t < 12 ? "Good morning, sir." : t < 18 ? "Good afternoon, sir." : "Good evening, sir."];
+
+  if (moeder || handling){
+    const s = [
+      moeder ? `${flertal(moeder, "meeting")} today` : "",
+      handling ? `${flertal(handling, "task")} requiring your attention` : ""
+    ].filter(Boolean).join(", and ");
+    dele.push(s[0].toUpperCase() + s.slice(1) + ".");
+  } else {
+    dele.push("Nothing on the calendar, and nothing overdue.");
+  }
+  if (foedselar.length === 1) dele.push(`It is ${foedselar[0]}'s birthday.`);
+  if (foedselar.length > 1) dele.push(`Birthdays today: ${foedselar.join(" and ")}.`);
+  return dele.join(" ");
+}
+
+// Stemmerne indlæses asynkront i nogle browsere, så vent kort på dem.
+function stemmer(){
+  const nu = speechSynthesis.getVoices();
+  if (nu.length) return Promise.resolve(nu);
+  return new Promise(ok => {
+    speechSynthesis.onvoiceschanged = () => ok(speechSynthesis.getVoices());
+    setTimeout(() => ok(speechSynthesis.getVoices()), 1000);
+  });
+}
+
+async function hils(tal, tving = false){
+  if (!window.speechSynthesis || lydErSlaaet()) return;
+  const idag = idagKey();
+  try {
+    if (!tving && localStorage.getItem("hilst") === idag) return;
+    localStorage.setItem("hilst", idag);
+  } catch {}
+  // To klik lige efter hinanden skal ikke give to hilsner. Kun cancel
+  // når den taler, for Safari sluger en speak() lige efter en cancel().
+  if (speechSynthesis.speaking) speechSynthesis.cancel();
+
+  const stemme = britiskMand(await stemmer());
+  const s = new SpeechSynthesisUtterance(hilsenTekst(tal));
+  if (stemme) s.voice = stemme;
+  s.lang = "en-GB";
+  s.rate = 0.95;
+  s.pitch = 0.9;          // en anelse dybere, mere butler
+  console.info("Hilsen med stemmen:", stemme?.name || "browserens standard");
+  speechSynthesis.speak(s);
+}
+
+/* Britisk mandestemme. Navnene varierer mellem browsere: Safari siger
+   "Daniel", Chrome på Mac "Daniel (English (United Kingdom))", Chrome
+   "Google UK English Male", Edge "Microsoft Ryan Online (Natural)".
+   Derfor matches der på dele af navnet, i prioriteret rækkefølge.
+   Første britiske stemme på listen er ofte en kvinde, så den bruges
+   kun hvis navnet ikke afslører køn, og aldrig hvis det siger Female. */
+const BRITISKE_MAEND = ["Daniel", "Google UK English Male", "Ryan", "Thomas",
+  "George", "Arthur", "Oliver", "Alfie", "Elliot", "Ethan", "Noah", "Malcolm"];
+const KVINDER = /female|kate|serena|stephanie|martha|libby|sonia|maisie|hazel|susan|mia|bella|abbi|hollie|olivia/i;
+
+function britiskMand(alle){
+  const gb = alle.filter(v => /^en[-_]GB/i.test(v.lang));
+  for (const navn of BRITISKE_MAEND){
+    const v = gb.find(v => v.name.includes(navn)) || alle.find(v => v.name.startsWith(navn + " ") || v.name === navn);
+    if (v) return v;
+  }
+  return gb.find(v => !KVINDER.test(v.name)) || null;
+}
+
+/* ============================================================
+   8. NYHEDER  (gennem /api/nyheder, samme feeds som CO Consulting)
+   ============================================================ */
+const SPOR = { marked: "Branchen", ai: "AI", fodbold: "Fodbold" };
+let nyhedsCache = null;
+let nyhedsTid = "";
+
+async function hentNyheder(){
+  try {
+    // POST uden kundenavne. Serveren kan søge på dem, men fanen
+    // "Dine kunder" er ikke med her.
+    const r = await apiHent("/api/nyheder", { method: "POST" });
+    if (!r.ok) throw new Error(r.status);
+    nyhedsCache = await r.json();
+    nyhedsTid = klokken(new Date());
+    visNyheder("marked");
+  } catch {
+    if ($("#nyhedsliste")) $("#nyhedsliste").innerHTML = `<p class="tom">Kunne ikke hente nyheder lige nu.</p>`;
+  }
+}
+
+function visNyheder(spor){
+  document.querySelectorAll("#nyheder [data-spor]").forEach(b =>
+    b.setAttribute("aria-selected", b.dataset.spor === spor));
+  const boks = $("#nyhedsliste");
+  if (!boks || !nyhedsCache) return;
+  if ($("#nyhed-tid")) $("#nyhed-tid").textContent = nyhedsTid ? "Opdateret " + nyhedsTid : "";
+
+  const poster = nyhedsCache[spor] || [];
+  if (!poster.length){
+    boks.innerHTML = `<p class="tom">Intet nyt at vise.</p>`;
+    return;
+  }
+  boks.innerHTML = poster.slice(0, 8).map(a => `
+    <a class="post" href="${sikker(a.link)}" target="_blank" rel="noopener">
+      <div class="post-emne">${sikker(a.titel)}</div>
+      <div class="post-top" style="justify-content:flex-start">
+        ${a.hold ? `<span class="maerke ${a.hold === "Brøndby" ? "" : "graa"}">${sikker(a.hold)}</span>` : ""}
+        ${a.kilde ? `<span>${sikker(a.kilde)}</span>` : ""}
+        ${a.dato ? `<span>${kort(a.dato)}</span>` : ""}
+      </div>
+    </a>`).join("");
+}
+</script>
+</body>
+</html>
