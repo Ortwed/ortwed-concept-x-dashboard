@@ -31,7 +31,8 @@ index.html** medmindre Christian selv beder om det.
 |---|---|
 | Frontend | Én statisk `index.html`, vanilla JS, ingen build |
 | Database | Supabase-projektet "Concept X dashboard" (`pjmcoegcccjkdzrqjbrr`), RLS |
-| Auth | Supabase Auth, email + password, én bruger |
+| Auth | Supabase Auth, email + password, én bruger (christiano@conceptx.com) |
+| Repo | `Ortwed/ortwed-concept-x-dashboard` |
 | Hosting | Cloudflare Pages, projekt `concept-x-dashboard`, auto-deploy fra `main` |
 | Serverkode | Cloudflare Pages Functions i `functions/api/` |
 | Mail + kalender | Google Apps Script i christiano@concept.dk |
