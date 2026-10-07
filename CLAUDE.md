@@ -166,6 +166,8 @@ Push til `main` udløser deploy automatisk. Tager cirka tredive sekunder.
 Variabler sat **efter** et deploy er ikke med i det kørende build. Sætter
 Christian en ny secret, skal der et nyt deploy til. Claude pusher en lille
 commit til `main` i stedet for at sende ham efter Retry deployment-knappen.
+Et secret sat mens et deploy allerede kører, kommer heller ikke med.
+Vent til Cloudflare viser deployet som færdigt, og push så igen.
 
 Pages Functions bygges kun hvis `functions/` ligger i roden af repoet.
 Det skal være et **Pages**-projekt, ikke et Worker. Det private projekt
