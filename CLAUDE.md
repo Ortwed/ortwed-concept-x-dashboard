@@ -16,7 +16,6 @@ Det samler det Christian alligevel kigger på hver morgen:
 - Ulæst post og ugens kalender fra Concept X Workspace
 - Nyheder (branchen, AI, fodbold), samme feeds som det private projekt
 - Fødselsdage på kolleger, kunder og bureaufolk, lagt ind i hånden
-- Butleren: tal dansk til kernen, få svar på engelsk om dagens tal
 
 Kun fødselsdagene gemmes. Alt andet hentes live og forsvinder igen.
 
@@ -52,7 +51,6 @@ functions/api/_middleware.js  vagt: afviser alt under /api/ uden gyldigt Supabas
 functions/api/todoist.js      Todoist, forfaldent + i dag
 functions/api/indbakke.js     proxy til Apps Script (mail + kalender)
 functions/api/nyheder.js      mediernes RSS, kopi fra co-consulting-crm
-functions/api/samtale.js      butleren: spørgsmål + dagens tal til Claude, svar tilbage
 apps-script/indbakke.gs       reference. Den kørende kopi bor på script.google.com
 CLAUDE.md                     denne fil
 ```
@@ -107,8 +105,7 @@ Brug den kun når noget er galt eller forsinket.
 
 Kernen i midten er gul med det sorte X-mærke. Den viser hvor mange
 opgaver der kræver handling, og den yderste prikkede bue skifter til
-alarmfarve når noget er forsinket. Klik på kernen starter en samtale
-med butleren (se nedenfor). Todoist åbnes fra "Se alle opgaver".
+alarmfarve når noget er forsinket. Klik på kernen åbner Todoist.
 Animationer slås fra ved `prefers-reduced-motion`.
 
 ## Forsiden
@@ -144,7 +141,6 @@ som type **Secret**:
 TODOIST_TOKEN   fra ARBEJDS-Todoist, ikke den private
 GMAIL_URL       Apps Script /exec-adressen fra christiano@concept.dk
 GMAIL_NOEGLE    samme streng som NOEGLE i scriptets Script Properties
-ANTHROPIC_API_KEY  til butleren, fra Christians PRIVATE Anthropic-konto
 ```
 
 Supabase publishable key står i klartekst i `index.html` og i
@@ -182,32 +178,6 @@ Settings → Applications → Configure, hvor både dette repo og
 Pages Functions bygges kun hvis `functions/` ligger i roden af repoet.
 Det skal være et **Pages**-projekt, ikke et Worker. Det private projekt
 lærte det på den hårde måde.
-
-## Butleren
-
-Klik på kernen, tal dansk. Browserens talegenkendelse (`da-DK`) laver
-det om til tekst, `/api/samtale` sender det til Claude, og svaret læses
-op på engelsk med den britiske stemme. Man kan også skrive i feltet
-under ringen, fx i et møde eller i Firefox, der ikke kan lytte.
-
-- Model `claude-opus-5-5` med effort `low`, fordi ventetiden høres.
-  Server-side fallback er slået til, så en afvisning prøves på en
-  anden model i stedet for at give et tomt svar.
-- Kun svar, ingen handlinger. Den kan ikke lukke opgaver eller flytte
-  møder. Det var Christians valg til første version.
-- Den ser et øjebliksbillede taget ved samtalens start: Todoist,
-  ugens kalender, afsender og emne på ulæst post (ikke uddraget) og
-  fødselsdage 30 dage frem. Ti minutters pause starter forfra.
-- Kun tekst sendes frem og tilbage, aldrig Claudes tænkeblokke. Så kan
-  historikken ikke blive afvist fordi den er "redigeret".
-- I Chrome sendes lyden til Google for at blive til tekst.
-- Ingen "Hey Jarvis". En browser der lytter hele tiden er en åben
-  mikrofon, og det er ikke det værd.
-
-**Arbejdsdata til en ekstern AI.** Mail-emner, kalender og opgaver går
-til Anthropic på Christians private nøgle. Det er hans eget valg
-(oktober 2026). Får Concept X en aftale med Anthropic, så skift nøglen
-til deres, og sæt en beløbsgrænse i konsollen uanset hvad.
 
 ## Apps Script
 
