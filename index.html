@@ -143,6 +143,14 @@ h2{margin:0;font-family:var(--rubrik);font-weight:700;font-size:13px;letter-spac
 .kerne span{font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;padding:0 12%;text-align:center}
 .ring-maerke{position:absolute;left:50%;bottom:0;transform:translate(-50%,40%);font-size:10px;font-weight:600;
   letter-spacing:.2em;color:var(--daemp2);background:#1F2C2C;padding:3px 8px;border-radius:10px;white-space:nowrap}
+.kerne.lytter{animation:none;box-shadow:0 0 0 8px rgba(227,255,0,.25),0 0 90px rgba(227,255,0,.7)}
+.samtale{width:100%;max-width:440px;display:flex;flex-direction:column;gap:12px;margin-top:10px}
+.samtale-log{display:flex;flex-direction:column;gap:8px}
+.samtale-log p{margin:0;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.samtale-log .mig{color:var(--daemp2)}
+.samtale-log .butler b{color:var(--gul);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-right:6px}
+.samtale form{display:flex;gap:8px}
+.samtale form input{flex:1;min-width:0}
 @keyframes drej{to{transform:rotate(360deg)}}
 @keyframes drejTilbage{to{transform:rotate(-360deg)}}
 @keyframes puls{0%,100%{box-shadow:0 0 40px rgba(227,255,0,.35),0 0 120px rgba(227,255,0,.12)}
@@ -396,11 +404,18 @@ async function visForside(){
         <div class="r1"></div><div class="r2"></div>
         <div class="r3 langsom"></div><div class="r4 modsat"></div><div class="r5 langsom"></div>
         <div class="r6"></div>
-        <button class="kerne puls" onclick="window.open('https://app.todoist.com/app/today','_blank','noopener')" title="Åbn Todoist">
+        <button class="kerne puls" id="kerne" onclick="samtal()" title="Tal med butleren">
           <img src="billeder/x-sort.png" alt="Concept X">
           <span id="kerne-status">Henter</span>
         </button>
         <div class="ring-maerke">CONCEPT X</div>
+      </div>
+      <div class="samtale">
+        <div class="samtale-log" id="samtale-log" aria-live="polite"></div>
+        <form onsubmit="event.preventDefault(); spoerg(this.felt.value); this.felt.value = ''">
+          <input name="felt" id="samtale-felt" autocomplete="off" placeholder="Klik på kernen og tal, eller skriv her">
+          <button class="knap stille">Send</button>
+        </form>
       </div>
     </div>
 
@@ -532,8 +547,7 @@ function tegnHandling(){
        href="https://app.todoist.com/app/today" target="_blank" rel="noopener">Se alle opgaver</a>`;
 
   // Kernen følger med. Ringen bliver alarmfarvet når noget er forsinket.
-  const status = $("#kerne-status");
-  if (status) status.textContent = todoist.length ? `${todoist.length} kræver handling` : "Alt er ajour";
+  visKerneStatus();
   $("#ring")?.classList.toggle("alarm", todoist.some(o => o.forfalden));
 }
 
@@ -612,7 +626,8 @@ async function hentFoedselsdage(){
     .lte("dage_til", 30).order("dage_til").limit(6);
   const boks = $("#fdage");
   if (!boks) return;
-  fdageIdag = (data || []).filter(f => f.dage_til === 0).map(f => f.navn.split(" ")[0]);
+  fdageNaeste = data || [];
+  fdageIdag = fdageNaeste.filter(f => f.dage_til === 0).map(f => f.navn.split(" ")[0]);
   if (error){
     boks.innerHTML = `<p class="fejl" style="margin:0">Kunne ikke hente fødselsdage: ${sikker(error.message)}</p>`;
     return;
@@ -765,6 +780,7 @@ function startUr(){
    localStorage er per browser og kan være låst, deraf try/catch.
    ============================================================ */
 let fdageIdag = [];
+let fdageNaeste = [];      // de næste 30 dage, også til butleren
 
 const hilsenTal = () => ({
   moeder: moederPaa(idagKey()).length,
@@ -820,18 +836,28 @@ async function hils(tal, tving = false){
     if (!tving && localStorage.getItem("hilst") === idag) return;
     localStorage.setItem("hilst", idag);
   } catch {}
-  // To klik lige efter hinanden skal ikke give to hilsner. Kun cancel
+  sig(hilsenTekst(tal));
+}
+
+// Læser en tekst op med butlerstemmen. Løftet indfries når den er
+// færdig, så samtalen ved hvornår den må lytte igen.
+async function sig(tekst){
+  if (!window.speechSynthesis || lydErSlaaet()) return;
+  // To klik lige efter hinanden skal ikke give to stemmer. Kun cancel
   // når den taler, for Safari sluger en speak() lige efter en cancel().
   if (speechSynthesis.speaking) speechSynthesis.cancel();
 
   const stemme = britiskMand(await stemmer());
-  const s = new SpeechSynthesisUtterance(hilsenTekst(tal));
+  const s = new SpeechSynthesisUtterance(tekst);
   if (stemme) s.voice = stemme;
   s.lang = "en-GB";
   s.rate = 0.95;
   s.pitch = 0.9;          // en anelse dybere, mere butler
-  console.info("Hilsen med stemmen:", stemme?.name || "browserens standard");
-  speechSynthesis.speak(s);
+  console.info("Taler med stemmen:", stemme?.name || "browserens standard");
+  return new Promise(ok => {
+    s.onend = s.onerror = () => ok();
+    speechSynthesis.speak(s);
+  });
 }
 
 /* Britisk mandestemme. Navnene varierer mellem browsere: Safari siger
@@ -895,6 +921,141 @@ function visNyheder(spor){
         ${a.dato ? `<span>${kort(a.dato)}</span>` : ""}
       </div>
     </a>`).join("");
+}
+
+/* ============================================================
+   9. SAMTALE MED BUTLEREN  (gennem /api/samtale)
+   Klik på kernen og tal dansk. Browseren laver talen om til tekst,
+   Claude svarer på engelsk, og svaret læses op med butlerstemmen.
+   Kun Chrome, Edge og Safari kan lytte, og i Chrome sker det hos
+   Google. Feltet under ringen virker i alle browsere og til møder,
+   hvor man ikke kan tale højt.
+   ============================================================ */
+const Genkender = window.SpeechRecognition || window.webkitSpeechRecognition;
+let samtale = [];          // [{ rolle: "mig"|"butler", tekst }]
+let samtaleKontekst = null;
+let samtaleSidst = 0;
+let tilstand = "";         // "", "lytter", "taenker" eller "taler"
+let lytter = null;
+
+// Efter ti minutters pause starter en ny samtale med friske tal.
+const SAMTALE_PAUSE = 10 * 60 * 1000;
+
+/* Det butleren får at vide om dagen. Taget én gang per samtale, så
+   tallene ikke skifter under den. Fra mails sendes kun afsender og
+   emne, ikke uddraget: der skal ikke mere arbejdspost ud af huset
+   end nødvendigt. */
+function oejebliksbillede(){
+  const tid = d => new Date(d).toLocaleString("da-DK", {weekday:"long", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"});
+  return {
+    nu: tid(new Date()),
+    opgaver_todoist: todoist.map(o => ({ titel: o.titel, forfalden: o.forfalden, dato: o.dato, prioritet: "P" + o.prioritet })),
+    kalender_denne_uge: aftaler.map(a => ({ titel: a.titel, start: a.heldags ? `${a.start}, hele dagen` : tid(a.start), sted: a.sted || undefined })),
+    ulaest_post: post.map(m => ({ fra: m.navn || m.email, emne: m.emne, modtaget: kort(m.dato) })),
+    foedselsdage_30_dage: fdageNaeste.map(f => ({ navn: f.navn, dage_til: f.dage_til, fylder: f.fylder || undefined, relation: f.relation, firma: f.firma || undefined })),
+    // Så den kan sige at den ikke ved det, i stedet for at sige at der intet er.
+    mangler: [todoistFejl && "Todoist svarer ikke", postFejl && "mail og kalender svarer ikke"].filter(Boolean)
+  };
+}
+
+function visKerneStatus(){
+  const status = $("#kerne-status");
+  if (!status) return;
+  status.textContent = { lytter: "Lytter", taenker: "Tænker", taler: "Taler" }[tilstand]
+    || (todoist.length ? `${todoist.length} kræver handling` : "Alt er ajour");
+  $("#kerne")?.classList.toggle("lytter", tilstand === "lytter");
+}
+
+function saetTilstand(t){
+  tilstand = t;
+  visKerneStatus();
+}
+
+function tegnSamtale(fejl = ""){
+  const boks = $("#samtale-log");
+  if (!boks) return;
+  // De sidste fire replikker er nok. Resten står i hovedet på butleren.
+  boks.innerHTML = samtale.slice(-4).map(b => b.rolle === "butler"
+    ? `<p class="butler"><b>Butler</b>${sikker(b.tekst)}</p>`
+    : `<p class="mig">${sikker(b.tekst)}</p>`).join("")
+    + (fejl ? `<p class="fejl">${sikker(fejl)}</p>` : "");
+}
+
+// Klik på kernen: lyt. Klik mens den lytter: stop. Klik mens den
+// taler: afbryd og lyt igen.
+function samtal(){
+  if (tilstand === "lytter"){ lytter?.stop(); return; }
+  if (tilstand === "taenker") return;
+  if (tilstand === "taler"){ speechSynthesis.cancel(); }
+
+  if (!Genkender){
+    tegnSamtale("Browseren kan ikke lytte. Brug Chrome, Edge eller Safari, eller skriv i feltet.");
+    $("#samtale-felt")?.focus();
+    return;
+  }
+
+  lytter = new Genkender();
+  lytter.lang = "da-DK";
+  lytter.interimResults = true;   // så man kan se den forstår, mens man taler
+  lytter.continuous = false;      // stopper selv ved en pause
+  let hoert = "";
+
+  lytter.onresult = e => {
+    hoert = Array.from(e.results).map(r => r[0].transcript).join("");
+    $("#samtale-felt").value = hoert;
+  };
+  lytter.onerror = e => {
+    // "no-speech" og "aborted" er bare stilhed eller et klik for meget.
+    if (e.error === "not-allowed" || e.error === "service-not-allowed")
+      tegnSamtale("Mikrofonen er ikke tilladt. Giv siden lov i browserens adresselinje.");
+    else if (e.error !== "no-speech" && e.error !== "aborted")
+      tegnSamtale(`Kunne ikke lytte: ${e.error}`);
+  };
+  lytter.onend = () => {
+    saetTilstand("");
+    $("#samtale-felt").value = "";
+    if (hoert.trim()) spoerg(hoert);
+  };
+
+  saetTilstand("lytter");
+  lytter.start();
+}
+
+async function spoerg(tekst){
+  tekst = String(tekst || "").trim();
+  if (!tekst || tilstand === "taenker") return;
+
+  if (Date.now() - samtaleSidst > SAMTALE_PAUSE){
+    samtale = [];
+    samtaleKontekst = oejebliksbillede();
+  }
+  samtaleSidst = Date.now();
+  samtale.push({ rolle: "mig", tekst });
+  tegnSamtale();
+  saetTilstand("taenker");
+
+  try {
+    // Kun teksten fra tidligere svar sendes med, aldrig Claudes egne
+    // tænkeblokke. Så kan historikken ikke "passe forkert" hos Anthropic.
+    const r = await apiHent("/api/samtale", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ kontekst: samtaleKontekst, beskeder: samtale })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok || data.fejl) throw new Error(data.fejl || `svarede ${r.status}`);
+
+    samtale.push({ rolle: "butler", tekst: data.svar });
+    tegnSamtale();
+    saetTilstand("taler");
+    await sig(data.svar);
+  } catch (e) {
+    // Spørgsmålet uden svar fjernes, så det ikke står to gange næste gang.
+    samtale.pop();
+    tegnSamtale(`Butleren svarer ikke: ${e.message}`);
+  }
+  // Er han afbrudt af et nyt klik, lytter den allerede igen.
+  if (tilstand !== "lytter") saetTilstand("");
 }
 </script>
 </body>
